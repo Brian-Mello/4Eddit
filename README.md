@@ -3,7 +3,7 @@
 Projeto criado com React/Redux. Foi utilizada uma api para guardar o dados afim de que eles não sejam perdidos.
 
 ## Stack
-O Front-end web desse projeto teve seus arquivos em divididos duas seções. Foram divididos em `Components` onde são guardados os inputs, cards de videos e etc. Já nos `Containers` são as páginas que "pensam" em união aos componentes para se mostrar na tela.
+O Front-end web desse projeto teve seus arquivos em divididos duas seções. Foram divididos em `Components` onde são guardados os inputs, cards de post, cards de comentários e etc. Já nos `Containers` são as páginas que "pensam" em união aos componentes para se mostrar na tela.
 
 ## Linguagens e serviços utilizadas
 ReactJs, Redux, javascript, Material-ui, HTML, CSS, Aws s3 para o hosting do site e gerenciadores de pacotes do Nodejs: yarn e npm.
