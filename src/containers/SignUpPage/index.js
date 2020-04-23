@@ -26,7 +26,7 @@ const signUpForm = [
         name: 'password',
         type: 'password',
         label: 'password',
-        required: true,
+        required: true
     },
 
 ]
@@ -53,15 +53,10 @@ class SignUpPage extends React.Component{
 
     handleFieldChange = event => {
         const { name, value } = event.target
-        console.log(name,value)
         this.setState({
           form: { ...this.state.form, [name]: value }
         });
     };
-
-    handleOnSubmit = event => {
-        
-    }
 
     handleOnSubmit = (event) =>{
         event.preventDefault();
