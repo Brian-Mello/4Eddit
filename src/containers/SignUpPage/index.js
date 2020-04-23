@@ -83,6 +83,7 @@ class SignUpPage extends React.Component{
                     <h1>Cadastre-se</h1>
                     {signUpForm.map(input =>(
                         <StyledTextField
+                            key={input.name}
                             onChange={this.handleFieldChange}
                             name={input.name}
                             type={input.type}

@@ -10,7 +10,7 @@ export const routes = {
   root: "/",
   signUp: "/signup",
   feed: "/feed",
-  postDetails: "/postDetails"
+  postDetails: "/post/:postId"
   // Outras rotas aqui
 };
 

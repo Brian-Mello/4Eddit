@@ -1,16 +1,16 @@
-import React, {Fragment} from "react";
+import React from "react";
 import Button from "@material-ui/core/Button";
 import { connect } from "react-redux";
 import { push } from "connected-react-router";
 import { routes } from '../Router/index';
 import { getPostDetails, createComment, voteComment } from "../../actions";
-import Comment from "@material-ui/icons/Comment";
-import ArrowUpward from "@material-ui/icons/ArrowUpward";
-import ArrowDownward from "@material-ui/icons/ArrowDownward";
+import PostContainer from '../../components/postContainer'
 import Loader from "../../components/Loader";
 import Header from "../../components/Header";
 import PropTypes from "prop-types";
-import { BackToTopButton,ArrowContainer, PostName, PostTitle, CommentContainer, StyledMain,StyledArrowUpward, StyledArrowDownward, Container, CommentCardContainer, CardHeader, CardMain, CardFooter, CreateCommentContainer, PostCardContainer, P, Input, Label } from "../../style/styled"
+import CommentCard from '../../components/commentContainer'
+import { CreateCommentContainer } from './styled';
+import {Container, Input, Label, BackToTopButton, StyledMain,} from '../../style/styled';
 
 // array do input
 const createCommentForm = [
@@ -80,56 +80,42 @@ class PostDetailsPage extends React.Component{
             });
         };
 
-        const commentIsReady = !selectedPost.comments ? <Loader/> :  (
-            <Fragment>
-                {orderedComments.map((comment) =>
-                    <CommentCardContainer key={comment.id}>
-                        <CardHeader>
-                            <P>{comment.username}</P>
-                        </CardHeader>
-                        <CardMain>
-                            <P>{comment.text}</P>
-                        </CardMain>
-                        <CardFooter>
-                            <ArrowContainer>
-                                <StyledArrowUpward 
-                                onClick={() => voteComment(selectedPost.id, comment.id, 1)}
-                                color={comment.userVoteDirection > 0 ? "secondary" : "inherit"}
-                            />
-                                    {comment.votesCount}
-                                <StyledArrowDownward
-                                onClick={() => voteComment(selectedPost.id, comment.id, -1)}
-                                color={comment.userVoteDirection < 0 ? "primary" : "inherit"}
-                            />  
-                            </ArrowContainer>
-                        </CardFooter>
-                    </CommentCardContainer>
-                )}
-            </Fragment>
-        )
+        let mapComment
+
+        let selectedPostCard = (<PostContainer
+            key={selectedPost.id}
+            username={selectedPost.username}
+            title={selectedPost.title}
+            text={selectedPost.text}
+            upwardColor={selectedPost.userVoteDirection > 0 ? "secondary" : "inherit"}
+            votesCount={selectedPost.votesCount}
+            downwardColor={selectedPost.userVoteDirection < 0 ? "primary" : "inherit"}
+            commentsNumber={selectedPost.commentsNumber}
+        />)
+
+        if(!selectedPost.comments){
+            mapComment = (<Loader/>)
+        } else if (orderedComments.length > 0) {
+            mapComment = orderedComments.map((comment) =>
+                <CommentCard
+                    key={comment.id}
+                    username={comment.username}
+                    text={comment.text}
+                    onClickUpward={() => voteComment(selectedPost.id, comment.id, 1)}
+                    upwardColor={comment.userVoteDirection > 0 ? "secondary" : "inherit"}
+                    votesCount={comment.votesCount}
+                    onClickDownward={() => voteComment(selectedPost.id, comment.id, -1)}
+                    downwardColor={comment.userVoteDirection < 0 ? "primary" : "inherit"}
+                />
+            )
+        }
 
         return(
             <Container>
                 <Header onClick={goBackToFeed} text={'Voltar'}></Header>
                 <StyledMain>
                     <BackToTopButton onClick={this.handleScrollToTop}>voltar pro topo</BackToTopButton>
-                    <PostCardContainer>
-                        <CardHeader>
-                        <PostName>{selectedPost.username}</PostName>
-                        </CardHeader>
-                        <CardMain>
-                            <PostTitle>{selectedPost.title}</PostTitle>
-                            <P>{selectedPost.text}</P>
-                        </CardMain>
-                        <CardFooter>
-                            <ArrowContainer>
-                                <ArrowUpward/>{selectedPost.votesCount}<ArrowDownward/>
-                            </ArrowContainer>
-                            <CommentContainer>
-                                {selectedPost.commentsNumber} <Comment/>
-                            </CommentContainer>
-                        </CardFooter>
-                    </PostCardContainer>
+                    {selectedPostCard}
                     <CreateCommentContainer>
                         <form onSubmit={this.handleCreateComment}>
                             {createCommentForm.map (input => (
@@ -150,7 +136,7 @@ class PostDetailsPage extends React.Component{
                             <Button type="submit"> Enviar</Button>
                         </form>
                     </CreateCommentContainer>
-                    {commentIsReady}
+                    {mapComment}
                 </StyledMain>
             </Container>
         )
@@ -162,7 +148,7 @@ PostDetailsPage.propTypes = {
     goToLoginPage: PropTypes.func.isRequired,
     getPostDetails: PropTypes.func.isRequired,
     createComment: PropTypes.func.isRequired,
-    selectedPostId: PropTypes.func.isRequired,
+    selectedPostId: PropTypes.string.isRequired,
     voteComment: PropTypes.func.isRequired,
     selectedPost: PropTypes.object,
 }

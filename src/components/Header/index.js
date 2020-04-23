@@ -1,8 +1,8 @@
 import React from 'react';
-import { StyledHeader, StyledButton, StyledImg, LogoContainer, MenuContainer } from '../../style/styled'
+import { StyledHeader, StyledButton, StyledImg, LogoContainer, MenuContainer } from './styled'
 import Foureddit from '../../containers/images/4eddit.png'
 
-function Header (props) {
+export function Header (props) {
     return (
         <StyledHeader>
             <LogoContainer>

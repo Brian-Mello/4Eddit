@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React from "react";
 import Button from "@material-ui/core/Button";
 import PropTypes from 'prop-types'
 import { connect } from "react-redux";
@@ -7,7 +7,9 @@ import { routes } from '../Router/index';
 import { getPosts, createPost, setPostIdAction, votePost } from '../../actions';
 import Loader from "../../components/Loader";
 import Header from "../../components/Header";
-import { BackToTopButton, ArrowContainer, PostTitle, PostName, StyledSearchTextField, FormWrapper, CommentContainer, StyledMain, StyledArrowUpward, StyledArrowDownward, StyledComment, Container, PostCardContainer, CardHeader, CardMain, CardFooter, CreatePostContainer, P, Input, Label } from '../../style/styled'
+import {StyledSearchTextField, FormWrapper, CreatePostContainer} from './styled'
+import { BackToTopButton, StyledMain, Container, Input, Label } from '../../style/styled'
+import PostContainer from "../../components/postContainer";
 
 // inputs do formulário
 const createPostForm = [
@@ -73,7 +75,11 @@ class FeedPage extends React.Component{
 
     handleSetPostId = (postId) => {
         this.props.setPostId(postId)
-        this.props.goToPostPageDetails()
+        this.props.goToPostPageDetails(postId)
+        window.scroll({
+            top: 0,
+            behavior: 'auto'
+        });
     };
 
     handleScrollToTop = () => {
@@ -105,38 +111,47 @@ class FeedPage extends React.Component{
             });
         };
 
-        const postIsReady = this.props.posts.length === 0 ? <Loader/> :  (
-            <Fragment>
-                {orderedPosts.map((post) =>
-                    <PostCardContainer key={post.id}>
-                        <CardHeader>
-                            <PostName>{post.username}</PostName>
-                        </CardHeader>
-                        <CardMain onClick = {() => this.handleSetPostId(post.id)}>
-                            <PostTitle>{post.title}</PostTitle>
-                            <P>{post.text}</P>
-                        </CardMain>
-                        <CardFooter>
-                            <ArrowContainer>
-                                <StyledArrowUpward 
-                                    onClick={() => votePost(post.id, 1)}
-                                    color={post.userVoteDirection > 0 ? "secondary" : "inherit"}
-                                />
-                                {post.votesCount}
-                                <StyledArrowDownward 
-                                    onClick={() => votePost(post.id, -1)}
-                                    color={post.userVoteDirection < 0 ? "primary" : "inherit"}
-                                />
-                            </ArrowContainer>
-                            <CommentContainer>
-                                {post.commentsNumber}
-                                <StyledComment onClick={() => this.handleSetPostId(post.id)}/>
-                            </CommentContainer>
-                        </CardFooter>
-                    </PostCardContainer>  
-                )}
-            </Fragment>
-        )
+        let mapPost = (<h3>Não foi possível achar o Post!</h3>)
+
+        if(this.props.posts.length === 0){
+            mapPost = (<Loader/>)
+        } else if (orderedPosts.length > 0) {
+            mapPost = orderedPosts.map((post) =>
+                <PostContainer
+                    key={post.id}
+                    username={post.username}
+                    onClickMain={() => this.handleSetPostId(post.id)}
+                    title={post.title}
+                    text={post.text}
+                    onClickArrowUpward={() => votePost(post.id, 1)}
+                    upwardColor={post.userVoteDirection > 0 ? "secondary" : "inherit"}
+                    votesCount={post.votesCount}
+                    onClickArrowDownward={() => votePost(post.id, -1)}
+                    downwardColor={post.userVoteDirection < 0 ? "primary" : "inherit"}
+                    commentsNumber={post.commentsNumber}
+                    onClickCommentIcon={() => this.handleSetPostId(post.id)}
+                />
+            )
+        }
+
+        const createPost = (<form onSubmit={this.handleCreatePost}>
+            {createPostForm.map (input => (
+                <div key={input.name}>
+                    <Label htmlFor = {input.name}>{input.label}</Label>
+                    <Input
+                        id = {input.id}
+                        name = {input.name}
+                        type = {input.type}
+                        label = {input.label}
+                        value = {this.state.form[input.name] || ""}
+                        required = {input.required}
+                        onChange = {this.handleInputOnChange}
+                        pattern = {input.pattern}
+                    />
+                </div>
+            ))}
+            <Button type="submit"> Enviar</Button>
+        </form>)
 
         return(
             <Container>
@@ -152,29 +167,12 @@ class FeedPage extends React.Component{
                             value={posts}
                         />
                     </FormWrapper>
-                    <BackToTopButton onClick={this.handleScrollToTop}>voltar pro topo</BackToTopButton>
                     <CreatePostContainer>
-                        <form onSubmit={this.handleCreatePost}>
-                            {createPostForm.map (input => (
-                                <div key={input.name}>
-                                    <Label htmlFor = {input.name}>{input.label}</Label>
-                                    <Input
-                                        id = {input.id}
-                                        name = {input.name}
-                                        type = {input.type}
-                                        label = {input.label}
-                                        value = {this.state.form[input.name] || ""}
-                                        required = {input.required}
-                                        onChange = {this.handleInputOnChange}
-                                        pattern = {input.pattern}
-                                    />
-                                </div>
-                            ))}
-                            <Button type="submit"> Enviar</Button>
-                        </form>
+                        {createPost}
                     </CreatePostContainer>
-                    {postIsReady}
+                    {mapPost}
                 </StyledMain>
+                <BackToTopButton onClick={this.handleScrollToTop}>voltar pro topo</BackToTopButton>
             </Container>
         )
     }
@@ -195,7 +193,7 @@ const mapStateToProps = (state) =>({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-    goToPostPageDetails: () => dispatch(push(routes.postDetails)),
+    goToPostPageDetails: (postId) => dispatch(push(`post/${postId}`)),
     goToLoginPage: () => dispatch(push(routes.root)),
     getPosts: () => dispatch(getPosts()),
     createPost: ( text, title ) => dispatch(createPost( text, title )),

@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { Loading, Triangle } from "../../style/styled";
+import { Loading, Triangle } from "./styled";
 
 function Loader ( ) {
     return (
